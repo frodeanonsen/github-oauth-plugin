@@ -136,13 +136,12 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 					return true;
 				}
 
-                if (allowGithubWebHookPermission &&
-                        (currentUriPathEquals( "github-webhook" ) ||
-                         currentUriPathEquals( "github-webhook/" ))) {
+        if (allowGithubWebHookPermission &&
+                (currentUriPathEquals( "github-webhook" ) ||
+                 currentUriPathEquals( "github-webhook/" ))) {
 
 
 					// allow if the permission was configured.
-
 					if (checkReadPermission(permission)) {
 						log.info("Granting READ access for github-webhook url: "
 								+ requestURI());
@@ -155,7 +154,6 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 				if (allowCcTrayPermission && currentUriPathEquals("cc.xml")) {
 
 					// allow if the permission was configured.
-
 					if (checkReadPermission(permission)) {
 						log.info("Granting READ access for cctray url: "
 								+ requestURI());
@@ -165,16 +163,16 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 					// else fall through to false.
 				}
 
-                if (allowEmbeddableBuildStatusIconPermission && currentUriIsEmbeddableBuildStatusIcon()) {
-                    // allow if the permission was configured
-                    if (checkReadPermission(permission)) {
-                        log.info("Granting READ access for embeddable build status icon: "
-                                + requestURI());
-                        return true;
-                    }
+        if (allowEmbeddableBuildStatusIconPermission && currentUriIsEmbeddableBuildStatusIcon()) {
+            // allow if the permission was configured
+            if (checkReadPermission(permission)) {
+                log.info("Granting READ access for embeddable build status icon: "
+                        + requestURI());
+                return true;
+            }
 
-                    // else false through to false
-                }
+            // else false through to false
+        }
 
 				log.finer("Denying anonymous READ permission to url: "
 						+ requestURI());
@@ -236,13 +234,21 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
                 .replace("http://", "")
                 .replaceFirst("[^/]+/", "")
                 .replaceAll("/$", "");
-        Boolean isStaticRequest = (requestPath.startsWith("/" + baseURI + "/static/") &&
-                requestPath.contains("/plugin/embeddable-build-status/"));
-        Boolean isEmbeddableBadgeIcon = requestPath.equals("/" + baseURI + "/job/" + jobName + "/badge/icon");
+        //Boolean isStaticRequest = (requestPath.startsWith("/" + baseURI + "/static/") &&
+        //        requestPath.contains("/plugin/embeddable-build-status/"));
+        //Boolean isEmbeddableBadgeIcon = requestPath.equals("/" + baseURI + "/job/" + jobName + "/badge/icon");
+        Boolean isStaticRequest = requestPath.contains("embeddable-build-status");
+        Boolean isEmbeddableBadgeIcon = requestPath.endsWith("/badge/icon");
         Boolean jobPathExists   = new File(jobPath).exists();
 
+        log.info("isStaticRequest: " + isStaticRequest);
+        log.info("isEmbeddableBadgeIcon: " + isEmbeddableBadgeIcon);
+        log.info("jobPathExists: " + jobPathExists);
+
         // valid or not?
-        return ((isEmbeddableBadgeIcon && jobPathExists) || isStaticRequest);
+        Boolean ok = ((isEmbeddableBadgeIcon && jobPathExists) || isStaticRequest);
+        log.info("currentUriIsEmbeddableBuildStatusIcon: " + ok);
+        return ok;
     }
 
     private String requestURI() {
